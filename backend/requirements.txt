@@ -1,0 +1,5 @@
+fastapi>=0.104
+uvicorn[standard]>=0.24
+pyarrow>=14.0
+pandas>=2.1
+Pillow>=10.0
