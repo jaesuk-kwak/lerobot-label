@@ -2,6 +2,15 @@
 
 A local web app for reviewing and editing LeRobot trajectories stored in parquet files. Browse episodes, replay frames as video, edit per-frame improvement flags, and save changes back to parquet.
 
+## Prerequisites
+
+- **Python 3.10+** and `pip`
+- **Node.js 20+** and **npm** — install via [NodeSource](https://deb.nodesource.com/):
+  ```bash
+  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+  sudo apt-get install -y nodejs
+  ```
+
 ## Quick Start
 
 ### 1. Backend (Python / FastAPI)
