@@ -31,6 +31,7 @@ from .dataset import DatasetInfo
 class EpisodeState:
     improvement: list[int]
     original_improvement: list[int]
+    is_human_input: list[int]
     dirty: bool = False
 
 
@@ -108,12 +109,26 @@ class EpisodeStore:
         # Use actual parquet row count — metadata length can disagree
         actual_rows = pf.metadata.num_rows
 
+        read_cols = []
         if "improvement" in col_names:
-            table = pf.read(columns=["improvement"])
+            read_cols.append("improvement")
+        if "is_human_input" in col_names:
+            read_cols.append("is_human_input")
+
+        if read_cols:
+            table = pf.read(columns=read_cols)
+
+        if "improvement" in col_names:
             values = table.column("improvement").to_pylist()
             improvement = [int(v) if v is not None else 0 for v in values]
         else:
             improvement = [1] * actual_rows
+
+        if "is_human_input" in col_names:
+            hi_values = table.column("is_human_input").to_pylist()
+            is_human_input = [int(v) if v is not None else 0 for v in hi_values]
+        else:
+            is_human_input = [0] * actual_rows
 
         # Keep num_frames in sync with reality
         if meta.num_frames != actual_rows:
@@ -122,6 +137,7 @@ class EpisodeStore:
         state = EpisodeState(
             improvement=list(improvement),
             original_improvement=list(improvement),
+            is_human_input=is_human_input,
             dirty=False,
         )
         self._states[episode_id] = state
@@ -129,6 +145,9 @@ class EpisodeStore:
 
     def get_improvement(self, episode_id: int) -> list[int]:
         return list(self._ensure_loaded(episode_id).improvement)
+
+    def get_is_human_input(self, episode_id: int) -> list[int]:
+        return list(self._ensure_loaded(episode_id).is_human_input)
 
     def is_dirty(self, episode_id: int) -> bool:
         if episode_id not in self._states:
@@ -141,6 +160,12 @@ class EpisodeStore:
         start_clamped = max(start, 0)
         for i in range(start_clamped, end_clamped + 1):
             state.improvement[i] = value
+        state.dirty = state.improvement != state.original_improvement
+        return list(state.improvement)
+
+    def copy_from_human_input(self, episode_id: int) -> list[int]:
+        state = self._ensure_loaded(episode_id)
+        state.improvement = list(state.is_human_input)
         state.dirty = state.improvement != state.original_improvement
         return list(state.improvement)
 

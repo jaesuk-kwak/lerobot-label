@@ -36,7 +36,7 @@ export function frameUrl(episodeId: number, frameIdx: number, camera = 'image'):
 
 export function updateImprovement(
   episodeId: number,
-  payload: { start: number; end: number; value: number } | { set_all: number },
+  payload: { start: number; end: number; value: number } | { set_all: number } | { copy_human_input: boolean },
 ): Promise<ImprovementResponse> {
   return request(`/episode/${episodeId}/improvement`, {
     method: 'POST',

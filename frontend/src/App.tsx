@@ -142,6 +142,18 @@ export default function App() {
     [episode, showError],
   );
 
+  const handleCopyHumanInput = useCallback(async () => {
+    if (!episode) return;
+    try {
+      const res = await updateImprovement(episode.episode_id, { copy_human_input: true });
+      setEpisode((prev) => (prev ? { ...prev, improvement: res.improvement, dirty: res.dirty } : prev));
+      if (res.dirty) setDirtySet((prev) => new Set(prev).add(episode.episode_id));
+      else setDirtySet((prev) => { const s = new Set(prev); s.delete(episode.episode_id); return s; });
+    } catch (e: any) {
+      showError(e.message);
+    }
+  }, [episode, showError]);
+
   const handleSave = useCallback(async () => {
     if (!episode) return;
     setSaving(true);
@@ -246,6 +258,7 @@ export default function App() {
                   totalFrames={episode.num_frames}
                   currentFrame={playback.currentFrame}
                   improvement={episode.improvement}
+                  isHumanInput={episode.is_human_input}
                   onSeek={actions.seekTo}
                   selectionStart={selStart}
                   selectionEnd={selEnd}
@@ -266,6 +279,7 @@ export default function App() {
                   success={episode.success}
                   maxReward={episode.max_reward}
                   improvement={episode.improvement}
+                  isHumanInput={episode.is_human_input}
                   dirty={episode.dirty}
                 />
                 <ImprovementEditor
@@ -276,6 +290,8 @@ export default function App() {
                   onSelectionChange={handleSelectionChange}
                   onSetInterval={handleSetInterval}
                   onSetAll={handleSetAll}
+                  onCopyHumanInput={handleCopyHumanInput}
+                  hasHumanInput={episode.is_human_input.length > 0}
                   onSave={handleSave}
                   onReset={handleReset}
                   dirty={episode.dirty}

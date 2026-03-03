@@ -14,6 +14,7 @@ export interface DatasetLoadResponse {
   task: string;
   image_columns: string[];
   has_improvement_col: boolean;
+  has_is_human_input_col: boolean;
   has_success_col: boolean;
   episodes: EpisodeSummary[];
 }
@@ -25,6 +26,7 @@ export interface EpisodeDetail {
   max_reward: number;
   image_columns: string[];
   improvement: number[];
+  is_human_input: number[];
   dirty: boolean;
 }
 

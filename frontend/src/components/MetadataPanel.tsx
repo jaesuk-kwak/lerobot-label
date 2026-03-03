@@ -4,6 +4,7 @@ interface Props {
   success: boolean;
   maxReward: number;
   improvement: number[];
+  isHumanInput: number[];
   dirty: boolean;
 }
 
@@ -13,10 +14,13 @@ export default function MetadataPanel({
   success,
   maxReward,
   improvement,
+  isHumanInput,
   dirty,
 }: Props) {
   const onesCount = improvement.filter((v) => v === 1).length;
   const zerosCount = improvement.length - onesCount;
+  const humanOnes = isHumanInput.filter((v) => v === 1).length;
+  const humanZeros = isHumanInput.length - humanOnes;
 
   return (
     <div className="metadata-panel">
@@ -44,6 +48,15 @@ export default function MetadataPanel({
               <span className="imp-zeros"> {zerosCount}</span>
             </td>
           </tr>
+          {isHumanInput.length > 0 && (
+            <tr>
+              <td>Human Input</td>
+              <td>
+                <span className="human-ones">{humanOnes}</span> /
+                <span className="human-zeros"> {humanZeros}</span>
+              </td>
+            </tr>
+          )}
           <tr>
             <td>Status</td>
             <td>{dirty ? <span className="unsaved-badge">Unsaved changes</span> : 'Saved'}</td>

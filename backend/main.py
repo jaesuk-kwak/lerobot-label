@@ -40,6 +40,7 @@ class ImprovementUpdate(BaseModel):
     end: int | None = None
     value: int | None = None
     set_all: int | None = None
+    copy_human_input: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -75,6 +76,7 @@ def load_dataset(req: LoadRequest):
         "task": info.task,
         "image_columns": info.image_columns,
         "has_improvement_col": info.has_improvement_col,
+        "has_is_human_input_col": info.has_is_human_input_col,
         "has_success_col": info.has_success_col,
         "episodes": episodes_summary,
     }
@@ -111,6 +113,7 @@ def get_episode(episode_id: int):
 
     try:
         improvement = store.get_improvement(episode_id)
+        is_human_input = store.get_is_human_input(episode_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -121,6 +124,7 @@ def get_episode(episode_id: int):
         "max_reward": meta.max_reward,
         "image_columns": meta.image_columns,
         "improvement": improvement,
+        "is_human_input": is_human_input,
         "dirty": store.is_dirty(episode_id),
     }
 
@@ -158,14 +162,16 @@ def update_improvement(episode_id: int, body: ImprovementUpdate):
         raise HTTPException(status_code=404, detail=f"Episode {episode_id} not found")
 
     try:
-        if body.set_all is not None:
+        if body.copy_human_input:
+            improvement = store.copy_from_human_input(episode_id)
+        elif body.set_all is not None:
             improvement = store.set_all(episode_id, body.set_all)
         elif body.start is not None and body.end is not None and body.value is not None:
             improvement = store.update_interval(episode_id, body.start, body.end, body.value)
         else:
             raise HTTPException(
                 status_code=400,
-                detail="Provide either {set_all} or {start, end, value}",
+                detail="Provide either {copy_human_input}, {set_all}, or {start, end, value}",
             )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -45,6 +45,7 @@ class DatasetInfo:
     episodes: dict[int, EpisodeMeta] = field(default_factory=dict)
     image_columns: list[str] = field(default_factory=list)
     has_improvement_col: bool = False
+    has_is_human_input_col: bool = False
     has_success_col: bool = False
 
 
@@ -114,6 +115,7 @@ class DatasetManager:
                 first_schema = schema
                 info.image_columns = _detect_image_columns(schema)
                 info.has_improvement_col = "improvement" in {f.name for f in schema}
+                info.has_is_human_input_col = "is_human_input" in {f.name for f in schema}
                 info.has_success_col = "success" in {f.name for f in schema}
 
             ep_col = _detect_column(schema, ["episode_index", "episode_id"])

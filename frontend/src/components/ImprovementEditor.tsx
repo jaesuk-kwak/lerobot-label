@@ -8,6 +8,8 @@ interface Props {
   onSelectionChange: (start: number | null, end: number | null) => void;
   onSetInterval: (start: number, end: number, value: number) => void;
   onSetAll: (value: number) => void;
+  onCopyHumanInput: () => void;
+  hasHumanInput: boolean;
   onSave: () => void;
   onReset: () => void;
   dirty: boolean;
@@ -22,6 +24,8 @@ export default function ImprovementEditor({
   onSelectionChange,
   onSetInterval,
   onSetAll,
+  onCopyHumanInput,
+  hasHumanInput,
   onSave,
   onReset,
   dirty,
@@ -119,6 +123,11 @@ export default function ImprovementEditor({
         <button onClick={() => onSetAll(0)} className="btn-set-zero">
           Set ALL &rarr; 0
         </button>
+        {hasHumanInput && (
+          <button onClick={onCopyHumanInput} className="btn-copy-human">
+            Copy from is_human_input
+          </button>
+        )}
       </div>
 
       <div className="save-controls">
