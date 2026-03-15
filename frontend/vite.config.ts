@@ -5,9 +5,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/dataset': 'http://localhost:8000',
-      '/episodes': 'http://localhost:8000',
-      '/episode': 'http://localhost:8000',
+      '/dataset': 'http://localhost:8100',
+      '/episodes': 'http://localhost:8100',
+      '/episode': 'http://localhost:8100',
     },
   },
 })

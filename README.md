@@ -18,18 +18,18 @@ A local web app for reviewing and editing LeRobot trajectories stored in parquet
 ```bash
 cd backend
 pip install -r requirements.txt
-uvicorn main:app --host 0.0.0.0 --port 8000 --app-dir .. --factory 2>/dev/null || \
-  python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
+uvicorn main:app --host 0.0.0.0 --port 8100 --app-dir .. --factory 2>/dev/null || \
+  python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8100
 ```
 
 Or from the project root:
 
 ```bash
 pip install -r backend/requirements.txt
-python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
+python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8100
 ```
 
-The API will be available at `http://localhost:8000`.
+The API will be available at `http://localhost:8100`.
 
 ### 2. Frontend (React / Vite)
 
@@ -39,7 +39,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` in your browser. The Vite dev server proxies API requests to the backend on port 8000.
+Open `http://localhost:5173` in your browser. The Vite dev server proxies API requests to the backend on port 8100.
 
 ## Usage
 

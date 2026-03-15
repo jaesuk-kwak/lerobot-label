@@ -229,14 +229,14 @@ class EpisodeStore:
         self._frame_cache.invalidate_episode(episode_id)
 
     def get_frame_image(self, episode_id: int, frame_idx: int, camera: str = "image") -> bytes:
-        """Read a single frame image from parquet, returning PNG bytes.
+        """Return PNG bytes for a single frame.
 
-        Uses an LRU cache for the image column so that the first frame
-        request per (episode, camera) reads from disk (~40ms), but all
-        subsequent frames are served from memory (<1ms).
+        v2.1 datasets: reads the PNG file directly from
+        ``images/chunk-NNN/{camera}/episode_NNNNNN/frame_NNNNNN.png``.
+
+        Legacy datasets: reads the image column from parquet using an LRU
+        cache so sequential playback stays sub-millisecond.
         """
-        from .image_utils import decode_image
-
         info = self._dataset_info
         if info is None:
             raise RuntimeError("No dataset loaded")
@@ -251,6 +251,23 @@ class EpisodeStore:
 
         if frame_idx < 0 or frame_idx >= meta.num_frames:
             raise IndexError(f"Frame {frame_idx} out of range [0, {meta.num_frames})")
+
+        # v2.1+: file-based images
+        if info.image_path_template:
+            episode_chunk = episode_id // info.chunks_size
+            rel_path = info.image_path_template.format(
+                episode_chunk=episode_chunk,
+                image_key=camera,
+                episode_index=episode_id,
+                frame_index=frame_idx,
+            )
+            abs_path = Path(info.dataset_dir) / rel_path
+            if not abs_path.exists():
+                raise FileNotFoundError(f"Image file not found: {abs_path}")
+            return abs_path.read_bytes()
+
+        # Legacy: images embedded in parquet columns
+        from .image_utils import decode_image
 
         column = self._frame_cache.get(episode_id, camera)
         if column is None:
